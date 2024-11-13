@@ -193,6 +193,7 @@ def _cluster_inputs(ctx, inputs):
                         variation can be more efficient on some datasets with well-defined clusters, by using the \
                         triangle inequality. However it\'s more memory intensive due to the allocation of an extra array \
                         of shape (n_samples, n_clusters).",
+            default="lloyd",
             view=types.RadioView(),
         )
     elif alg == "Affinity Propagation":
