@@ -323,6 +323,7 @@ def _cluster_inputs(ctx, inputs):
                 Complete linkage uses the maximum distances between all observations of the two sets. \
                 Single uses the minimum of the distances between all observations of the two sets.",
             view=types.RadioView(),
+            default="ward",
         )
     elif alg == "DBSCAN":
 
@@ -362,6 +363,7 @@ def _cluster_inputs(ctx, inputs):
             description="The algorithm to be used by the NearestNeighbors module to compute \
                 pointwise distances and find nearest neighbors.",
             view=types.RadioView(),
+            default="auto"
         )
         inputs.int(
             "leaf_size",
@@ -369,6 +371,7 @@ def _cluster_inputs(ctx, inputs):
             description="Leaf size passed to BallTree or cKDTree. This can affect the speed of the construction and query,\
                 as well as the memory required to store the tree. The optimal value depends on the nature of the problem.",
             view=types.SliderView(componentsProps={'slider': {'min': 1, "step": 1, "default": 30}}),
+            default=30,
         )
         inputs.float(
             "p",
@@ -383,6 +386,7 @@ def _cluster_inputs(ctx, inputs):
             description="The minimum number of samples in a group for that group to be considered a \
                 cluster; groupings smaller than this size will be left as noise.",
             view=types.SliderView(componentsProps={'slider': {'min': 1, "step": 1, "default": 5}}),
+            default=5,
         )
 
         inputs.int(
@@ -390,8 +394,8 @@ def _cluster_inputs(ctx, inputs):
             label="min_samples",
             description="The number of samples in a neighborhood for a point to be considered as a core \
                 point. This includes the point itself.",
-            view=types.SliderView(componentsProps={'slider': {'min': 1, "step": 1, "default": 5}}),
-            default=5,
+            view=types.SliderView(componentsProps={'slider': {'min': 1, "step": 1, "default": None}}),
+            default=None,
         )
 
         inputs.float(
@@ -400,7 +404,7 @@ def _cluster_inputs(ctx, inputs):
             description="The number of samples in a neighborhood for a point to be considered as a core \
                 point. This includes the point itself.",
             view=types.SliderView(componentsProps={'slider': {'min': 0, "step": 0.1, "default": 0.0}}),
-            default=0,
+            default=0.0,
         )
         inputs.int(
             "max_cluster_size",
@@ -408,14 +412,15 @@ def _cluster_inputs(ctx, inputs):
             description="A limit to the size of clusters returned by the eom cluster selection algorithm. \
                 There is no limit when max_cluster_size=None",
             view=types.SliderView(componentsProps={'slider': {'min': 1, "step": 1, "default": None}}),
-            required=False
+            required=False,
+            default=None
         )
         inputs.float(
             "alpha",
             label="alpha",
             description="A distance scaling parameter as used in robust single linkage.",
             view=types.SliderView(componentsProps={'slider': {'min': 0, "step": 0.1, "default": 1.0}}),
-            default=1,
+            default=1.0,
         )
         alg_choices = ["auto", "ball_tree", "kd_tree", "brute"]
 
@@ -430,13 +435,15 @@ def _cluster_inputs(ctx, inputs):
             label="algorithm",
             description="Exactly which algorithm to use for computing core distances",
             view=types.RadioView(),
+            default="auto",
         )
         inputs.int(
             "leaf_size",
-            label="alpha",
+            label="leaf_size",
             description="Leaf size for trees responsible for fast nearest neighbour queries \
                 when a KDTree or a BallTree are used as core-distance algorithms",
             view=types.SliderView(componentsProps={'slider': {'min': 1, "step": 1, "default": 40}}),
+            default=40,
         )
 
     elif alg == "OPTICS":
@@ -471,13 +478,15 @@ def _cluster_inputs(ctx, inputs):
             label="algorithm",
             description="Exactly which algorithm to use for computing core distances",
             view=types.RadioView(),
+            default="auto",
         )
         inputs.int(
             "leaf_size",
             label="alpha",
             description="Leaf size for trees responsible for fast nearest neighbour queries \
                 when a KDTree or a BallTree are used as core-distance algorithms",
-            view=types.SliderView(componentsProps={'slider': {'min': 1, "step": 1, "default": 40}}),
+            view=types.SliderView(componentsProps={'slider': {'min': 1, "step": 1, "default": 30}}),
+            default=30,
         )
     elif alg == "BIRCH":
 
@@ -766,13 +775,13 @@ def _cluster(ctx):
         branching_factor = ctx.params.get("branching_factor")
         n_clusters = ctx.params.get("n_clusters")
 
-        birch = sklearn.cluster.BIRCH(
+        birch = sklearn.cluster.Birch(
             threshold=threshold,
             branching_factor=branching_factor,
             n_clusters=n_clusters
         ).fit(embeddings)
 
-        for sample, cluster in zip(target_view,op.labels_):
+        for sample, cluster in zip(target_view,birch.labels_):
             sample[field_name] = str(cluster)     
             sample.save()  
 
