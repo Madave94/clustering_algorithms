@@ -250,6 +250,7 @@ def _cluster_inputs(ctx, inputs):
             description="Which affinity to use. At the moment precomputed and euclidean are supported. \
                     euclidean uses the negative squared euclidean distance between points.",
             view=types.RadioView(),
+            default="euclidean",
         )
     elif alg == "Mean Shift":
         inputs.float(
@@ -274,6 +275,7 @@ def _cluster_inputs(ctx, inputs):
                     onto a grid whose coarseness corresponds to the bandwidth. Setting this option to True\
                     will speed up the algorithm because fewer seeds will be initialized.",
                 view=types.CheckboxView(),
+                default=False,
             )
         inputs.bool(
                 "cluster_all",
@@ -282,6 +284,7 @@ def _cluster_inputs(ctx, inputs):
                     any kernel. Orphans are assigned to the nearest kernel. If false, then orphans are given \
                     cluster label -1.",
                 view=types.CheckboxView(),
+                default=True,
             )
         inputs.int(
                 "max_iter",
@@ -290,14 +293,6 @@ def _cluster_inputs(ctx, inputs):
                     terminates (for that seed point), if has not converged yet.",
                 view=types.SliderView(componentsProps={'slider': {'min': 1, "step": 1, "default": 300}}),
                 default=300,
-        )
-
-        inputs.int(
-                "random_state",
-                label="random_state",
-                description="Determines random number generation for centroid initialization.",
-                view=types.SliderView(componentsProps={'slider': {'min': 1, "step": 1, "default": 51}}),
-                default=51,
         )
 
     elif  alg == "Agglomerative (Hierarchical)":
@@ -672,7 +667,6 @@ def _cluster(ctx):
         bin_seeding = ctx.params.get("bin_seeding")
         cluster_all = ctx.params.get("cluster_all")
         max_iter = ctx.params.get("max_iter")
-        random_state = ctx.params.get("random_state")
 
         bandwidth = estimate_bandwidth(embeddings, quantile=bandwidth_quantile, n_samples=bandwidth_n_samples)
         ms = MeanShift(
@@ -680,7 +674,6 @@ def _cluster(ctx):
             bin_seeding=bin_seeding,
             cluster_all=cluster_all,
             max_iter=max_iter,
-            random_state=random_state
             ).fit(embeddings)
         for sample, cluster in zip(target_view,ms.labels_):
             sample[field_name] = str(cluster)
