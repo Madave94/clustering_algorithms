@@ -13,6 +13,12 @@ This plugin is a Python plugin that allows for you to find the clusters in your 
 fiftyone plugins download https://github.com/danielgural/clustering_algorithms
 ```
 
+To run the torch models install [PyTorch](https://pytorch.org/get-started/locally/). If you want to run the Open-Clip 
+model install:
+```pip install open-clip-torch```
+
+For the tensorflow models install tensorflow.
+
 ## Operators
 
 ### `cluster_samples`
@@ -71,3 +77,8 @@ Make sure to take advantage of optional inputs such as finding clusters within a
 | zero-shot-classification-transformer-torch                | Torch       |
 | zero-shot-detection-transformer-torch                     | Torch       |
 
+## Delegated Run
+
+If you have delegated a run and want to launch it locally run:
+
+```fiftyone delegated launch```
